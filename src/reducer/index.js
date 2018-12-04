@@ -1,11 +1,15 @@
 const initialState = { 
-    sum: 0
+    counterSum: 0
   };
-   export default (state = initialState, { type, payload }) => {
+  
+  export default (state = initialState, { type, payload }) => {
     switch (type) {
-      case "UPDATE_SUM":
-        return { sum: state.sum + payload };
+      case "COUNTERSUM":
+      console.log(payload)
+        return { counterSum: state.counterSum + payload };
       default:
         return state;
     }
   };
+  
+  
