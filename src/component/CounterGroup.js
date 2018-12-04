@@ -6,68 +6,69 @@ class CounterGroup extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      //counterSum: 0,
-      counters: new Array(parseInt(this.props.defaultCount)).fill(0).map(() => {
-        return { number: 0, id: new Date().getTime + Math.random() };
-      })
+      // counterSum: 0,
+      counterArr: new Array(parseInt(this.props.defaultCount))
+        .fill(0)
+        .map(() => ({ count: 0, id: this.generateID() }))
     };
   }
 
+  generateID = () => {
+    return new Date().getTime() + Math.random();
+  };
+
   regenrateCounters = () => {
     this.setState({
-      counters: new Array(parseInt(this.refs.countInput.value))
+      counterArr: new Array(parseInt(this.refs.countInput.value))
         .fill(0)
-        .map(() => {
-          return { number: 0, id: new Date().getTime + Math.random() };
-        }),
+        .map(() => ({ count: 0, id: this.generateID() })),
       counterSum: 0
     });
   };
 
   counterUpdateCallback = changedNum => {
+    // this.setState({ counterSum: this.state.counterSum + changedNum });
     this.props.dispatch({
-      type: "SUM",
+      type: "COUNTERSUM",
       payload: changedNum
-    })
-    //this.setState({ counterSum: this.state.counterSum + changedNum });
+    });
   };
 
-  increaseUpdate = (changedNum, id) => {
-    const counters = this.state.counters.map(counterItem => {
+  increaseNumber = (changedNum, id) => {
+    const changedArr = this.state.counterArr.map(counterItem => {
       if (counterItem.id === id) {
-        return { number: counterItem.number + changedNum, id: id };
+        return { id: id, count: counterItem.count + changedNum };
       } else {
         return counterItem;
       }
     });
 
-    this.setState({ counters: counters });
+    this.setState({ counterArr: [...changedArr] });
   };
 
-  decreaseUpdate = (changedNum, id) => {
-    const counters = this.state.counters.map(counterItem => {
+  decreaseNumber = (changedNum, id) => {
+    const changedArr = this.state.counterArr.map(counterItem => {
       if (counterItem.id === id) {
-        return { number: counterItem.number - changedNum, id: id };
+        return { id: id, count: counterItem.count - changedNum };
       } else {
         return counterItem;
       }
     });
 
-    this.setState({ counters: counters });
+    this.setState({ counterArr: [...changedArr] });
   };
 
   render() {
-    console.log(this.state.counters);
     return (
       <div>
-        {this.state.counters.map(counterItem => (
+        {this.state.counterArr.map(counterItem => (
           <Counter
             key={counterItem.id}
             id={counterItem.id}
+            countValue={counterItem.count}
             onCounterValueChanged={this.counterUpdateCallback}
-            onIncreased={this.increaseUpdate}
-            counterNum={counterItem.number}
-            onDecreased={this.decreaseUpdate}
+            onClickIncreased={this.increaseNumber}
+            onClickDecreased={this.decreaseNumber}
           />
         ))}
         <input type="text" ref="countInput" />
@@ -75,14 +76,14 @@ class CounterGroup extends Component {
           Regenerate indicated Counters
         </button>
         <br />
-        <span>总和：{this.props.sum}</span>
+        <span>总和：{this.props.counterSum}</span>
       </div>
     );
   }
 }
 
-const mapStateToProps = state =>({
-  sum: state.counterSum
+const mapStateToProps = state => ({
+  counterSum: state.counterSum
 });
 
 connect(mapStateToProps)(CounterGroup)
